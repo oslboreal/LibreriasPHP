@@ -4,19 +4,12 @@
 de poder manejar de una manera generica imagenes JPEG y PNG a través de 
 un Archivo o una dirección URL 
 
-Este código puede se utilizado, estudiado, modificado y redistribuido libremente.*/
+Este código puede se utilizado, estudiado, modificado y redistribuido libremente.
+https://github.com/oslboreal/LibreriasPHP*/
 
-abstract class Almacenable
-{
-    // Estado de almacenamiento de la imagen. - True: Esta almacenada - False: No esta almacenada.
-    private $_saveState;
-    // Directorio de almacenamiento de la imagen : string 
-    private $_saveDir;
-    // Nombre del archivo al ser almacenado (Obligatoriamente instanciado antes de almacenar)
-    private $fileName;
-}
+require_once 'archivoAlmacenable.php';
 
-class imageJmv extends Almacenable
+class imageJmv extends ArchivoAlmacenable
 {   
     private $_dir;
     // Determina el tipo de IMG: 0 PNG 1 JPEG
@@ -30,9 +23,6 @@ class imageJmv extends Almacenable
     // Almacena el resource obtenido con la creación de la imagen.
     public $_resource;
 
-/*--------------------------- Apartado de Almacenamiento de imagenes ----------------------------------*/
-
-
     // Método constructor del objeto
     public function imageJmv($stringDir, $imgType)
     {
@@ -43,6 +33,7 @@ class imageJmv extends Almacenable
             $this->imageCreate();
     }
 
+    // Crea el recurso de la Imagen.
     public function imageCreate()
     {
         $temporalResource;
@@ -60,6 +51,7 @@ class imageJmv extends Almacenable
             }       
     }
 
+    // En caso de existir un recurso, se muestra la imagen.
     public function imageShow()
     {
         if($this->_state == true)
@@ -70,20 +62,62 @@ class imageJmv extends Almacenable
                 header('Content-Type: image/png');
                 imagepng($this->_resource);
                 imagedestroy($this->_resource);
+                return true;
                 break;
                 case "JPEG":
                 header('Content-Type: image/jpeg');
                 imagepng($this->_resource);
                 imagedestroy($this->_resource);
+                return true;
                 break;
             }
+        }else
+        {
+            return false;
+        }
+    }
+
+    // Función que retorna el Recurso de la imagen en caso de que 
+    // se haya creado correctamente la misma.
+    //
+    public function getResource()
+    {
+        if($this->_state == true)
+        {
+            return $this->_resource;
+        }else
+        {
+            return null;
+        }
+    }
+
+        // En caso de existir un recurso, se crea la imagen.
+    public function imageSave($dir, $name)
+    {
+        if($this->_state == true)
+        {
+            $this->setFileName = $name;
+            $this->setSaveDir = $dir;
+            switch($this->_type)
+            {
+                case "PNG":
+                imagepng($this->_resource, $dir . $name);
+                imagedestroy($this->_resource);
+                $this->setSaveState = true;
+                return true;
+                break;
+                case "JPG":
+                imagepng($this->_resource, $dir . $name);
+                imagedestroy($this->_resource);
+                $this->setSaveState = true;
+                return true;
+                break;
+            }
+        }else
+        {
+            return false;
         }
     }
 }
-
-// Creo mi imagen.
-$asd = "http://www.islabit.com/wp-content/imagenes/jpeg.jpg";
-$dada = new imageJmv($asd, "JPEG");
-$dada->imageShow();
 
 ?>
